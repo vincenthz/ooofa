@@ -1,0 +1,12 @@
+[package]
+name = "ooofa"
+version = "0.1.0"
+authors = ["Vincent Hanquez <vincent@typed.io>"]
+edition = "2018"
+
+[dependencies]
+serde_yaml = "0.8"
+serde = { version = "1", features = ["serde_derive"]}
+aotp = { git = "https://github.com/vincenthz/aotp" }
+url = "2.2"
+indicatif = "0.16"
