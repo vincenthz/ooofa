@@ -10,6 +10,14 @@ struct Config {
     keys: HashMap<String, String>,
 }
 
+fn print_left(d: std::time::Duration) -> String {
+    let millis = d.subsec_millis();
+    let secs = d.as_secs();
+    let x = millis / 10;
+
+    format!("{:02}.{:02} seconds", secs, x)
+}
+
 fn main() {
     let args = std::env::args().collect::<Vec<_>>();
 
@@ -40,9 +48,16 @@ fn main() {
             let b = std::time::Duration::from_millis(430);
 
             let _ = std::thread::spawn(move || loop {
-                let (token, left) = otp.totp_now();
+                let (ctr, left) = aotp::Counter::totp_now_left(otp.period.into());
+                let token = otp.totp_at(ctr);
+                let token_next = otp.totp_at(ctr.incr());
                 let sleep = if left < b { left } else { b };
-                pb.set_message(format!("{}      {:?}", token.dec6(), left));
+                pb.set_message(format!(
+                    "{}      {}   --- {}",
+                    token.dec6(),
+                    print_left(left),
+                    token_next.dec6()
+                ));
                 std::thread::sleep(sleep);
             });
         }
