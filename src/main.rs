@@ -100,7 +100,7 @@ fn main() {
 
             let mut previous_counter = aotp::Counter::zero();
             let mut threshold_change = false;
-            let sleep = std::time::Duration::from_millis(220);
+            let sleep = std::time::Duration::from_millis(620);
             for (period, (period_bar, keys)) in keys_per_period.iter() {
                 let (counter, left) = aotp::Counter::totp_now_left((*period).into());
                 let next_counter = counter.incr();
