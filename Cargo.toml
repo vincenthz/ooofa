@@ -10,3 +10,5 @@ serde = { version = "1", features = ["serde_derive"]}
 aotp = { git = "https://github.com/vincenthz/aotp" }
 url = "2.2"
 indicatif = "0.16"
+console = "0.14"
+chrono = "0.4"
