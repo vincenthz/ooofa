@@ -142,43 +142,30 @@ fn main() {
             std::thread::sleep(sleep);
         });
 
-        /*
-        for (k, v) in config.keys {
-            let pb = m.add(ProgressBar::new(1));
-            pb.set_style(spinner_style.clone());
-            pb.set_prefix(format!("{:10}  : ", k));
-            let otp = aotp::OTP::from_url(&url::Url::parse(&v).unwrap()).unwrap();
-
-            let b = std::time::Duration::from_millis(430);
-
-            let _ = std::thread::spawn(move || loop {
-                let (ctr, left) = aotp::Counter::totp_now_left(otp.period.into());
-                let token = otp.totp_at(ctr);
-                let token_next = otp.totp_at(ctr.incr());
-                let sleep = if left < b { left } else { b };
-                pb.set_message(format!(
-                    "{}      {}   --- {}",
-                    token.dec6(),
-                    print_left(left),
-                    token_next.dec6()
-                ));
-                std::thread::sleep(sleep);
-            });
-        }
-        */
         m.join().unwrap();
     } else {
-        let x = config.keys.keys().find(|k| k.starts_with(keyt));
+        let x = keys.keys().find(|k| k.starts_with(keyt));
 
         match x {
             Some(x) => {
-                let x = config.keys.get(x).unwrap();
-                let otp = aotp::OTP::from_url(&url::Url::parse(x).unwrap()).unwrap();
-                let (token, left) = otp.totp_now();
-                println!("{}", token.dec6());
-                eprintln!("{:?}", left);
+                let otp = keys.get(x).unwrap();
+                let (counter, left) = aotp::Counter::totp_now_left(otp.period.into());
+                let token = otp.totp_at(counter);
+                let start = counter.system_time(otp.period.into());
+                println!(
+                    "{} : {}   {}",
+                    print_time(start),
+                    token.dec6(),
+                    print_left(left)
+                );
 
-                //println!("{} ({:?})", token.dec6(), left)
+                let mut counter = counter;
+                for _ in 0..10 {
+                    counter = counter.incr();
+                    let token = otp.totp_at(counter);
+                    let start = counter.system_time(otp.period.into());
+                    println!("{} : {}", print_time(start), token.dec6());
+                }
             }
             None => {
                 println!("missing key")
